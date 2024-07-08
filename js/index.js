@@ -129,6 +129,76 @@ function startSnow() {
 }
 
 
+// Add rain effect
+const rainParticleSize = 15.0;
+const rainRadius = 100000.0;
+const rainImageSize = new Cesium.Cartesian2(
+  rainParticleSize * 0.25,
+  rainParticleSize * 0.75
+);
+let rainGravityScratch = new Cesium.Cartesian3();
+const rainUpdate = function (particle, dt) {
+  rainGravityScratch = Cesium.Cartesian3.normalize(
+    particle.position,
+    rainGravityScratch
+  );
+  rainGravityScratch = Cesium.Cartesian3.multiplyByScalar(
+    rainGravityScratch,
+    -1050.0,
+    rainGravityScratch
+  );
+
+  particle.position = Cesium.Cartesian3.add(
+    particle.position,
+    rainGravityScratch,
+    particle.position
+  );
+
+  const distance = Cesium.Cartesian3.distance(
+    scene.camera.position,
+    particle.position
+  );
+  if (distance > rainRadius) {
+    particle.endColor.alpha = 0.0;
+  } else {
+    particle.endColor.alpha =
+      Cesium.Color.BLUE.alpha / (distance / rainRadius + 0.1);
+  }
+};
+
+function startRain() {
+  removeAllExceptGooglePhotorealistic3DTileset();
+  scene.primitives.add(
+    new Cesium.ParticleSystem({
+      modelMatrix: new Cesium.Matrix4.fromTranslation(
+        scene.camera.position
+      ),
+      speed: -1.0,
+      lifetime: 20.0,
+      emitter: new Cesium.SphereEmitter(rainRadius),
+      startScale: 1.0,
+      endScale: 0.5,
+      image: "assets/img/circular_particle.png",
+      emissionRate: 12000.0,
+      startColor: new Cesium.Color(0.27, 0.5, 0.7, 0.0),
+      endColor: new Cesium.Color(0.27, 0.5, 0.7, 0.98),
+      imageSize: rainImageSize,
+      updateCallback: rainUpdate,
+    })
+  );
+
+  scene.skyAtmosphere.hueShift = -0.97;
+  scene.skyAtmosphere.saturationShift = 0.25;
+  scene.skyAtmosphere.brightnessShift = -0.4;
+  scene.fog.density = 0.00025;
+  scene.fog.minimumBrightness = 0.01;
+}
+
+
+
+
+
+
 // Create a dropdown menu to select the location
 const options = Object.keys(locations).map((key) => {
   return {
@@ -147,6 +217,6 @@ if (dropdown) {
   });
 }
 
-const startSnowButton = document.getElementById("startSnow");
+const startSnowButton = document.getElementById("startRain");
 
-startSnowButton.addEventListener("click", startSnow);
+startSnowButton.addEventListener("click", startRain);
