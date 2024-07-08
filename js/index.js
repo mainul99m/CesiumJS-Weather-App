@@ -1,6 +1,7 @@
 import { TOKEN_CESIUM, TOKEN_WEATHER } from './cesiumConfig.js';
 import { locations } from './location.js'
 import { flyToLocation } from './cesiumViewer.js';
+import { createSelectPlace } from './dropdown.js';
 
 // Your access token can be found at: https://ion.cesium.com/tokens.
 Cesium.Ion.defaultAccessToken = TOKEN_CESIUM;
@@ -44,3 +45,21 @@ async function addGooglePhotoRealistic3DTileset(){
 addGooglePhotoRealistic3DTileset();
 
 flyToLocation(viewer, location);
+
+// Create a dropdown menu to select the location
+const options = Object.keys(locations).map((key) => {
+  return {
+    label: locations[key].name,
+    value: key,
+  };
+});
+
+const dropdown = createSelectPlace(options, "dropdown");
+
+// change the location when the dropdown value changes
+if (dropdown) {
+  dropdown.addEventListener("change", (event) => {
+    location = locations[event.target.value];
+    flyToLocation(viewer, location);
+  });
+}
