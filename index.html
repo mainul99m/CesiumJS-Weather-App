@@ -19,7 +19,21 @@
       <div id="dropdown" class="position-absolute col-lg-2 col-6"> </div>
 
       <!-- Button -->
-      <button id = "startRain" class="cesium-button position-absolute col-lg-2 col-6 top-0 start-50">Rain</button>
+      <button id = "updateWeather" class="cesium-button position-absolute col-lg-2 col-6 top-0 start-50">Update Weather</button>
+    </div>
+
+    <!-- Weather Widget -->
+    <div id="weatherWidget" class="position-absolute col-lg-2 col-6 bottom-0 start-0">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Weather - <span id="cityName">-</span></h5>
+          <p class="card-text">Temperature: <span id="temperature">-</span>°C</p>
+          <p class="card-text">Wind Speed: <span id="windSpeed">-</span> m/s</p>
+          <p class="card-text">Precipetation: <span id="precipitation">-</span> mm/hr</p>
+          <p class="card-text">Snow: <span id="snow">-</span> mm/hr</p>
+          <p class="card-text">Cloud Cover: <span id="cloudCover">-</span>%</p>
+        </div>
+      </div>
     </div>
 
   </section>

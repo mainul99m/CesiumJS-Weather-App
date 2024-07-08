@@ -196,6 +196,87 @@ function startRain() {
 
 
 
+// Reset the sky to default values
+// Documentation - https://cesium.com/learn/ion-sdk/ref-doc/Scene.html
+
+function resetSky() {
+  scene.skyAtmosphere.hueShift = 0.0;
+  scene.skyAtmosphere.saturationShift = 0.0;
+  scene.skyAtmosphere.brightnessShift = 0.0;
+  scene.fog.density = 0.0002; // Reset to default fog density
+  scene.fog.minimumBrightness = 0.01; // Reset to default minimum brightness
+}
+
+function setModerateClouds() {
+  scene.skyAtmosphere.hueShift = -0.05; 
+  scene.skyAtmosphere.saturationShift = 0.1; 
+  scene.skyAtmosphere.brightnessShift = -0.1; 
+  scene.fog.density = 0.0003; 
+  scene.fog.minimumBrightness = 0.6;  
+}
+
+function setHeavyClouds() {
+  scene.skyAtmosphere.hueShift = -0.5;
+  scene.skyAtmosphere.saturationShift = 0.0;
+  scene.skyAtmosphere.brightnessShift = -0.5;
+  scene.fog.density = 0.0025;
+  scene.fog.minimumBrightness = 0.3;
+}
+
+function resetWeather(){
+  resetSky();
+  removeAllExceptGooglePhotorealistic3DTileset();
+  document.getElementById("temperature").innerText = '-';
+  document.getElementById("cityName").innerText = '-';
+  document.getElementById("precipitation").innerText = '-';
+  document.getElementById("snow").innerText = '-';
+  document.getElementById("windSpeed").innerText = '-';
+  document.getElementById("cloudCover").innerText = '-';
+}
+
+
+// Fetch weather data from the Weatherbit API
+// Documentation - https://www.weatherbit.io/api/weather-current
+
+function getWeather() {
+  const apiEndpoint = `https://api.weatherbit.io/v2.0/current?lat=${location.coordinate[1]}&lon=${location.coordinate[0]}&key=${TOKEN_WEATHER}`;
+
+  fetch(apiEndpoint)
+    .then(response => response.json())
+    .then(data => {
+      const temperature = data.data[0].temp; 
+      const precipitation = data.data[0].precip;
+      const cityName = data.data[0].city_name; 
+      const snow = data.data[0].snow;
+      const windSpeed = data.data[0].wind_spd;
+      const cloud = data.data[0].clouds;
+
+      document.getElementById("temperature").innerText = temperature.toFixed(2);
+      document.getElementById("cityName").innerText = cityName;
+      document.getElementById("precipitation").innerText = precipitation;
+      document.getElementById("snow").innerText = snow;
+      document.getElementById("windSpeed").innerText = windSpeed;
+      document.getElementById("cloudCover").innerText = cloud
+
+      if (snow > 0) {
+        startSnow();
+      } else if (precipitation > 0) {
+        startRain();
+      } else {
+        if(cloud > 80){
+          setHeavyClouds()
+        } else if(cloud > 50){
+          setModerateClouds()
+        } else {
+          resetSky();
+        }
+      }
+      
+
+    })
+    .catch(error => console.error('Error fetching weather data:', error));
+
+}
 
 
 
@@ -212,11 +293,12 @@ const dropdown = createSelectPlace(options, "dropdown");
 // change the location when the dropdown value changes
 if (dropdown) {
   dropdown.addEventListener("change", (event) => {
+    resetWeather();
     location = locations[event.target.value];
     flyToLocation(viewer, location);
   });
 }
 
-const startSnowButton = document.getElementById("startRain");
+const updateWeatherButton = document.getElementById("updateWeather");
 
-startSnowButton.addEventListener("click", startRain);
+updateWeatherButton.addEventListener("click", getWeather);
