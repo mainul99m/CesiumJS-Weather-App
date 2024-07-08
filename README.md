@@ -64,7 +64,6 @@ Fetch real-time weather data and update the Cesium scene based on the weather co
 1. Clone the repository:
     ```bash
     git clone https://github.com/mainul99m/CesiumJS-Weather-App.git
-    CesiumJS-Weather-App
     ```
 
 2. Obtain your API keys:
