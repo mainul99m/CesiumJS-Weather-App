@@ -56,6 +56,10 @@ function removeAllExceptGooglePhotorealistic3DTileset() {
   }
 }
 
+
+// Add snow effect
+// Documentation - https://cesium.com/learn/ion-sdk/ref-doc/ParticleSystem.html
+// Cesium Sandcastle - https://sandcastle.cesium.com/?src=Particle%20System%20Weather.html
 const snowParticleSize = 12.0;
 const snowRadius = 15000.0;
 const minimumSnowImageSize = new Cesium.Cartesian2(
