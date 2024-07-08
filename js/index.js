@@ -46,6 +46,85 @@ addGooglePhotoRealistic3DTileset();
 
 flyToLocation(viewer, location);
 
+
+function removeAllExceptGooglePhotorealistic3DTileset() {
+  const primitives = scene.primitives;
+  for (let i = primitives.length - 1; i >= 0; i--) {
+    if (primitives.get(i) !== googleTileset) {
+      primitives.remove(primitives.get(i));
+    }
+  }
+}
+
+const snowParticleSize = 12.0;
+const snowRadius = 15000.0;
+const minimumSnowImageSize = new Cesium.Cartesian2(
+  snowParticleSize,
+  snowParticleSize
+);
+const maximumSnowImageSize = new Cesium.Cartesian2(
+  snowParticleSize * 1.0,
+  snowParticleSize * 1.0
+);
+let snowGravityScratch = new Cesium.Cartesian3();
+
+const snowUpdate = function (particle, dt) {
+  snowGravityScratch = Cesium.Cartesian3.normalize(
+    particle.position,
+    snowGravityScratch
+  );
+  Cesium.Cartesian3.multiplyByScalar(
+    snowGravityScratch,
+    Cesium.Math.randomBetween(-30.0, -300.0),
+    snowGravityScratch
+  );
+  particle.velocity = Cesium.Cartesian3.add(
+    particle.velocity,
+    snowGravityScratch,
+    particle.velocity
+  );
+  const distance = Cesium.Cartesian3.distance(
+    scene.camera.position,
+    particle.position
+  );
+  if (distance > snowRadius) {
+    particle.endColor.alpha = 0.0;
+  } else {
+    particle.endColor.alpha = 1.0 / (distance / snowRadius + 0.1);
+  }
+};
+
+function startSnow() {
+  removeAllExceptGooglePhotorealistic3DTileset();
+  scene.primitives.add(
+    new Cesium.ParticleSystem({
+      modelMatrix: new Cesium.Matrix4.fromTranslation(
+        scene.camera.position
+      ),
+      minimumSpeed: -1.0,
+      maximumSpeed: 0.0,
+      lifetime: 30.0,
+      emitter: new Cesium.SphereEmitter(snowRadius),
+      startScale: 0.5,
+      endScale: 1.0,
+      image: "assets/img/snowflake_particle.png",
+      emissionRate: 7000.0,
+      startColor: Cesium.Color.WHITE.withAlpha(0.0),
+      endColor: Cesium.Color.WHITE.withAlpha(1.0),
+      minimumImageSize: minimumSnowImageSize,
+      maximumImageSize: maximumSnowImageSize,
+      updateCallback: snowUpdate,
+    })
+  );
+
+  scene.skyAtmosphere.hueShift = -0.8;
+  scene.skyAtmosphere.saturationShift = -0.7;
+  scene.skyAtmosphere.brightnessShift = -0.33;
+  scene.fog.density = 0.001;
+  scene.fog.minimumBrightness = 0.8;
+}
+
+
 // Create a dropdown menu to select the location
 const options = Object.keys(locations).map((key) => {
   return {
@@ -63,3 +142,7 @@ if (dropdown) {
     flyToLocation(viewer, location);
   });
 }
+
+const startSnowButton = document.getElementById("startSnow");
+
+startSnowButton.addEventListener("click", startSnow);
