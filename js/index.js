@@ -26,9 +26,21 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 
 const scene = viewer.scene;
 
+// initialize the google tileset
+let googleTileset;
 
-// Add Cesium OSM Buildings, a global 3D buildings layer.
-const buildingTileset = await Cesium.createOsmBuildingsAsync();
-viewer.scene.primitives.add(buildingTileset);   
+// Add Google Photorealistic 3D Tileset
+// Documentation - https://cesium.com/learn/ion-sdk/ref-doc/GooglePhotorealistic3DTileset.html
+// Cesium Asset Depo - https://ion.cesium.com/assetdepot/354307
+async function addGooglePhotoRealistic3DTileset(){
+  try {
+    googleTileset = await Cesium.createGooglePhotorealistic3DTileset();
+    viewer.scene.primitives.add(googleTileset);
+  } catch (error) {
+    console.log(`Failed to load tileset: ${error}`);
+  }
+}
+
+addGooglePhotoRealistic3DTileset();
 
 flyToLocation(viewer, location);
